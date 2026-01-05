@@ -387,23 +387,24 @@ const App = () => {
   }, []);
   
 useEffect(() => {
-  const sendHeight = () => {
+  function postHeight() {
     const height = document.body.scrollHeight;
-    window.parent.postMessage(height, "*");
-  };
+    window.parent.postMessage(
+      { type: "objectHeight", height },
+      "*"
+    );
+  }
 
-  // send immediately
-  sendHeight();
+  postHeight();
+  window.addEventListener("load", postHeight);
+  window.addEventListener("resize", postHeight);
 
-  // send after layout settles
-  setTimeout(sendHeight, 300);
-  setTimeout(sendHeight, 1000);
-
-  // observe future changes
-  const observer = new ResizeObserver(sendHeight);
+  const observer = new ResizeObserver(postHeight);
   observer.observe(document.body);
 
   return () => {
+    window.removeEventListener("load", postHeight);
+    window.removeEventListener("resize", postHeight);
     observer.disconnect();
   };
 }, []);
