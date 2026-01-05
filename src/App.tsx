@@ -385,7 +385,30 @@ const App = () => {
       }
     }
   }, []);
+useEffect(() => {
+  const sendHeight = () => {
+    window.parent.postMessage(
+      {
+        type: "framer-resize",
+        height: document.documentElement.scrollHeight
+      },
+      "*"
+    );
+  };
 
+  sendHeight();
+
+  const observer = new ResizeObserver(sendHeight);
+  observer.observe(document.body);
+
+  window.addEventListener("resize", sendHeight);
+
+  return () => {
+    observer.disconnect();
+    window.removeEventListener("resize", sendHeight);
+  };
+}, []);
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem('swiftcancel_draft', JSON.stringify({
