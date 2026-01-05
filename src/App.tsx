@@ -385,27 +385,26 @@ const App = () => {
       }
     }
   }, []);
+  
 useEffect(() => {
   const sendHeight = () => {
-    window.parent.postMessage(
-      {
-        type: "framer-resize",
-        height: document.documentElement.scrollHeight
-      },
-      "*"
-    );
+    const height = document.body.scrollHeight;
+    window.parent.postMessage(height, "*");
   };
 
+  // send immediately
   sendHeight();
 
+  // send after layout settles
+  setTimeout(sendHeight, 300);
+  setTimeout(sendHeight, 1000);
+
+  // observe future changes
   const observer = new ResizeObserver(sendHeight);
   observer.observe(document.body);
 
-  window.addEventListener("resize", sendHeight);
-
   return () => {
     observer.disconnect();
-    window.removeEventListener("resize", sendHeight);
   };
 }, []);
   
